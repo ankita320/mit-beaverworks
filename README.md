@@ -1,2 +1,2 @@
 # mit-beaverworks
-beaverworks assignments
+mitbeaverworks assignments
