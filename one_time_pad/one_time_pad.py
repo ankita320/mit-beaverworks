@@ -21,15 +21,34 @@
 # <https://docs.python.org/3.3/library/functions.html#zip>
 # 
 # 
-from embsec import Serial
-
 def xor():
     ser = Serial("/embsec/one_time_pad/xor")
     # Your code goes here!
+    x = str(ser.read(16)) #reads 16 byte string of one group
+    y = str(ser.read(16)) #reads 16 byte string of another group
+    xxor = ord(x[0])
+    lenx = len(x)
+    for i in range(1,lenx):
+   # Traverse string to find the XOR
+        xxor = (xxor ^ (ord(x[i])))
+        
+    yxor = ord(y[0])
+    leny = len(y)
+    for i in range(1,leny):
+   # Traverse string to find the XOR
+        yxor = (yxor ^ (ord(y[i])))
+        
+    xarr = bytes(xxor)
+    yarr = bytes(yxor)
+    ser.write(xarr)
+    ser.write(yarr)
+    print(ser.read_until())
 
 xor()
-### Challenge Name: two_time_pad (/embsec/one_time_pad/two_time_pad)
-# 
+
+#sources:https://www.geeksforgeeks.org/program-to-find-the-xor-of-ascii-values-of-characters-in-a-string/ 
+#https://www.educative.io/edpresso/how-to-convert-strings-to-bytes-in-python
+
 # 
 # The one time pad (OTP) is theoretically a perfectly secure encryption method that cannot be cracked. However,
 # the main downside is that you must first exchange a pre-shared key that is the same size as the plaintext. Poor
@@ -57,25 +76,118 @@ xor()
 # <http://www.crypto-it.net/eng/attacks/two-time-pad.html>
 # 
 # 
-from embsec import Serial
+ser = Serial("/embsec/one_time_pad/two_time_pad")
+cipher_one = ser.read(16) #Reading in one string length 16 bytes
+print(f"Ciphertext 1 is : {cipher_one}")
+cipher_two = ser.read(16) #Reading in second string length of 16 bytes
+print(f"Ciphertext 2 is : {cipher_two}")
 
-def two_time_pad():
-    ser = Serial("/embsec/one_time_pad/two_time_pad")
-    # Your code goes here!
+A_to_B_list = []
+for i in range (0,16):
+    cipher_piece_one = cipher_one[i] #taking specific index
+    cipher_piece_two = cipher_two[i] #taking specific index
+    A_XOR_B = (cipher_piece_one ^ cipher_piece_two) #XOR-ing
+    A_to_B_list.append(A_XOR_B) #Adding each XORed chunk to a list
+
+A_to_B = bytearray(A_to_B_list) #turing the list into byte format 
+print(A_to_B)
+
+opened_text = open("plaintexts.txt" , "rb") #Opening and extracting data from plaintexts.txt
+read_text = opened_text.read() 
+compares = read_text.splitlines()
+
+print(f"Length of the list is : {len(compares)}")
+
+
+for x in range (0,1793):
+    plaintext_1 = compares[x]
+    A_list = []
+    for i in range (0,16):
+        A_to_b_1 = A_to_B[i] #taking specific index
+        plain_piece= plaintext_1[i] #taking specific index
+        A_list_piece = (A_to_b_1 ^ plain_piece) #XOR-ing
+        A_list.append(A_list_piece) #Adding each XORed chunk to a list
+        A_list_b = bytearray(A_list)
+    for y in range (0,1793):
+        plaintext_2 = compares[y] 
+        if A_list_b == plaintext_2:
+            print(f"Plaintext 1 is {plaintext_1}")
+            print(f"Plaintext 2 is {plaintext_2}")
+            break
+        else:
+            continue
+
+#from embsec import Serial
+#from cryptography.fernet import Fernet
+#from Crypto.Cipher import AES
+#from Crypto.Random import get_random_bytes
+#from base64 import b64encode
+
+#def two_time_pad():
+ #   ser = Serial("/embsec/one_time_pad/two_time_pad")
+  #  # Your code goes here!
+   # one = str(ser.read(16))
+    #two = str(ser.read(16))
+    
+    #key = Fernet.generate_key()
+    #fernet = Fernet(key)
+    #encOne = fernet.encrypt(one.encode())
+    
+    #key = Fernet.generate_key()
+    #fernet = Fernet(key)
+    #encTwo = fernet.encrypt(two.encode())
+    
+    
+    #pl = open('plaintexts.txt') # opening the file 
+    #plread = pl.readlines() #reading the whole file in list, everything in it
+    
+    #pl0 = str(plread[0])
+    #plxor = ord(pl0[0])
+
+    
+    #lenpl = len(plread[0])
+    
+    #for i in range(1,lenpl):
+      #  ixor = str(plread[i])
+   # Traverse string to find the XOR
+     #   plxor1 = (plxor ^ ord(ixor[i]))
+    
+    #pl1 = str(plread[1])
+   # plxor1 = ord(pl1[1])
+    
+    #lenpl1 = len(plread[1])
+    
+    #for i in range(1,lenpl1):
+      #  ixor1 = str(plread[i])
+   # Traverse string to find the XOR
+     #   plxor2 = (plxor ^ ord(ixor1[i]))
+    
+        
+    #dec1 = bytes(plxor1)
+    #dec2 = bytes(plxor2)
+    
+    #key = Fernet.generate_key()
+    #fernet = Fernet(key)
+    #decpl = fernet.decrypt(dec1).decode()
+    
+    #key = Fernet.generate_key()
+    #fernet = Fernet(key)
+    #decpl1 = fernet.decrypt(dec2).decode()
+                               
+    #ser.write(dec1)
+    #ser.write(dec2)
+   # print(ser.read_until())
+    
+
+        
+
+                             
+   
+
+    #sources:https://stackoverflow.com/questions/50481366/bytes-to-string-in-aes-encryption-and-decryption-in-python-3
+#https://www.geeksforgeeks.org/how-to-encrypt-and-decrypt-strings-in-python/
 
 two_time_pad()
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
